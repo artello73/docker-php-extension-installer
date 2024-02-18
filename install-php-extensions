@@ -3591,7 +3591,7 @@ installRemoteModule() {
 				git clone --filter=blob:none --no-checkout --depth 1 --sparse https://github.com/snowflakedb/pdo_snowflake.git --branch "$installRemoteModule_version" "$installRemoteModule_src/snowflake"
 				(
 					cd "$installRemoteModule_src/snowflake"
-					git spares-checkout set --no-cone '/*' '!/libsnowflakeclient/*/win64/*'
+					git sparse-checkout set --no-cone '/*' '!/libsnowflakeclient/*/win64/*'
 					git checkout
 					./scripts/build_pdo_snowflake.sh
 					cp -- "$installRemoteModule_src/modules/pdo_snowflake.so" "$PHP_EXTDIR/pdo_snowflake.so"
