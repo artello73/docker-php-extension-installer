@@ -3594,7 +3594,7 @@ installRemoteModule() {
 					git sparse-checkout set --no-cone '/*' '!/libsnowflakeclient/*/win64/*'
 					git checkout
 					export PHP_HOME=/usr
-					bash ./scripts/build_pdo_snowflake.sh
+					source ./scripts/build_pdo_snowflake.sh
 					cp -- "$installRemoteModule_src/modules/pdo_snowflake.so" "$PHP_EXTDIR/pdo_snowflake.so"
 					cp -- "$installRemoteModule_src/libsnowflakeclient/cacert.pem" "$PHP_EXTDIR/cacert.pem"
 				# )
