@@ -3579,16 +3579,21 @@ installRemoteModule() {
 				if test -z "$installRemoteModule_version"; then
 					installRemoteModule_version=v2.0.1
 				fi
-				installRemoteModule_src="$(getPackageSource https://github.com/snowflakedb/pdo_snowflake/archive/refs/tags/$installRemoteModule_version.tar.gz)"
-				cd "$installRemoteModule_src"
-				ls -la 
-				./scripts/build_pdo_snowflake.sh
 
-				cp -- "$installRemoteModule_src/modules/pdo_snowflake.so" "$PHP_EXTDIR/pdo_snowflake.so"
-				cp -- "$installRemoteModule_src/libsnowflakeclient/cacert.pem" "$PHP_EXTDIR/cacert.pem"
-			
+				echo 'Installing pdo_snowflake... '
+				installRemoteModule_src="$(mktemp -p /tmp/src -d)"
+				git clone --filter=blob:none --no-checkout --depth 1 --sparse https://github.com/snowflakedb/pdo_snowflake.git --branch "$installRemoteModule_version" "$installRemoteModule_src/snowflake"
+				(
+					cd "$installRemoteModule_src/snowflake"
+					git spares-checkout set --no-cone '/*' '!/libsnowflakeclient/*/win64/*'
+					git checkout
+					./scripts/build_pdo_snowflake.sh
+					cp -- "$installRemoteModule_src/modules/pdo_snowflake.so" "$PHP_EXTDIR/pdo_snowflake.so"
+					cp -- "$installRemoteModule_src/libsnowflakeclient/cacert.pem" "$PHP_EXTDIR/cacert.pem"
+				)
 				installRemoteModule_ini_extra="$(printf 'pdo_snowflake.cacert=%s\n' "$installRemoteModule_ini_extra" "$PHP_EXTDIR/cacert.pem")"
 				cd - >/dev/null
+				rm -rf "$installRemoteModule_src"
 				installRemoteModule_manuallyInstalled=1
 			fi
 			;;
