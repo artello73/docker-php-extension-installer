@@ -1165,7 +1165,7 @@ buildRequiredPackageLists() {
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile firebird-dev libib-util"
 				;;
 			pdo_snowflake@alpine)
-				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake"
+				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake bash"
 				;;
 			pdo_snowflake@debian)
 				buildRequiredPackageLists_volatile="$buildRequiredPackageLists_volatile git cmake"
