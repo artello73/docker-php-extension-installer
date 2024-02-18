@@ -3573,6 +3573,24 @@ installRemoteModule() {
 				installRemoteModule_manuallyInstalled=1
 			fi
 			;;
+
+		pdo_snowflake)
+			if test -z "$installRemoteModule_path"; then
+				if test -z "$installRemoteModule_version"; then
+					installRemoteModule_version=v2.0.1
+				fi
+				installRemoteModule_src="$(getPackageSource https://github.com/snowflakedb/pdo_snowflake/archive/refs/tags/$installRemoteModule_version.tar.gz)"
+				cd "$installRemoteModule_src"
+				./scripts/build_pdo_snowflake.sh
+
+				cp -- "$installRemoteModule_src/modules/pdo_snowflake.so" "$PHP_EXTDIR/pdo_snowflake.so"
+				cp -- "$installRemoteModule_src/libsnowflakeclient/cacert.pem" "$PHP_EXTDIR/cacert.pem"
+			
+				installRemoteModule_ini_extra="$(printf 'pdo_snowflake.cacert=%s\n' "$installRemoteModule_ini_extra" "$PHP_EXTDIR/cacert.pem")"
+				cd - >/dev/null
+				installRemoteModule_manuallyInstalled=1
+			fi
+			;;
 		snuffleupagus)
 			if test -z "$installRemoteModule_path"; then
 				if test -z "$installRemoteModule_version"; then
