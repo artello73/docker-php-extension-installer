@@ -3597,7 +3597,7 @@ installRemoteModule() {
 					phpize
 					./configure --enable-pdo_snowflake
 					make
-					    echo "Linking for Linux"
+					echo "Linking for Linux"
 					g++ -shared \
 						-fPIC \
 						-DPIC \
@@ -3633,6 +3633,8 @@ installRemoteModule() {
 						libsnowflakeclient/deps-build/linux/cmocka/lib/libcmocka.a
 					(cd .libs && rm -f pdo_snowflake.la && ln -s ../pdo_snowflake.la pdo_snowflake.la)
 					./libtool --mode=install cp ./pdo_snowflake.la $(pwd)/modules	
+					echo "Some debug"
+					ls -la "$installRemoteModule_src/modules/"
 					cp -- "$installRemoteModule_src/modules/pdo_snowflake.so" "$PHP_EXTDIR/pdo_snowflake.so"
 					cp -- "$installRemoteModule_src/libsnowflakeclient/cacert.pem" "$PHP_EXTDIR/cacert.pem"
 				# )
