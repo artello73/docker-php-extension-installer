@@ -3589,11 +3589,14 @@ installRemoteModule() {
 				echo 'Installing pdo_snowflake... '
 				installRemoteModule_src="$(mktemp -p /tmp/src -d)/snowflake"
 				git clone --filter=blob:none --no-checkout --depth 1 --sparse https://github.com/snowflakedb/pdo_snowflake.git --branch "$installRemoteModule_version" "$installRemoteModule_src"
+
+				phpBinPath="$(which php)"
+				echo "php at $phpBinPath"
 				# (
 					cd "$installRemoteModule_src"
 					git sparse-checkout set --no-cone '/*' '!/libsnowflakeclient/*/win64/*' '!/libsnowflakeclient/*/darwin/*'
 					git checkout
-					export PHP_HOME=/usr
+					export PHP_HOME=/usr/local
 					phpize
 					./configure --enable-pdo_snowflake
 					make
