@@ -3589,14 +3589,11 @@ installRemoteModule() {
 				echo 'Installing pdo_snowflake... '
 				installRemoteModule_src="$(mktemp -p /tmp/src -d)/snowflake"
 				git clone --filter=blob:none --no-checkout --depth 1 --sparse https://github.com/snowflakedb/pdo_snowflake.git --branch "$installRemoteModule_version" "$installRemoteModule_src"
-
-				phpBinPath="$(which php)"
-				echo "php at $phpBinPath"
-				# (
+				(
 					cd "$installRemoteModule_src"
 					git sparse-checkout set --no-cone '/*' '!/libsnowflakeclient/*/win64/*' '!/libsnowflakeclient/*/darwin/*'
 					git checkout
-					export PHP_HOME=/usr/local
+					export PHP_HOME="$(which php | sed 's/\/bin\/php//' -)"
 					phpize
 					./configure --enable-pdo_snowflake
 					make
@@ -3636,11 +3633,9 @@ installRemoteModule() {
 						libsnowflakeclient/deps-build/linux/cmocka/lib/libcmocka.a
 					(cd .libs && rm -f pdo_snowflake.la && ln -s ../pdo_snowflake.la pdo_snowflake.la)
 					./libtool --mode=install cp ./pdo_snowflake.la $(pwd)/modules	
-					echo "Some debug"
-					ls -la "$installRemoteModule_src/modules/"
 					cp -- "$installRemoteModule_src/modules/pdo_snowflake.so" "$PHP_EXTDIR/pdo_snowflake.so"
 					cp -- "$installRemoteModule_src/libsnowflakeclient/cacert.pem" "$PHP_EXTDIR/cacert.pem"
-				# )
+				)
 				installRemoteModule_ini_extra="$(printf 'pdo_snowflake.cacert=%s\n' "$installRemoteModule_ini_extra" "$PHP_EXTDIR/cacert.pem")"
 				cd - >/dev/null
 				rm -rf "$installRemoteModule_src"
