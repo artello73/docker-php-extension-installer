@@ -3591,10 +3591,48 @@ installRemoteModule() {
 				git clone --filter=blob:none --no-checkout --depth 1 --sparse https://github.com/snowflakedb/pdo_snowflake.git --branch "$installRemoteModule_version" "$installRemoteModule_src/snowflake"
 				# (
 					cd "$installRemoteModule_src/snowflake"
-					git sparse-checkout set --no-cone '/*' '!/libsnowflakeclient/*/win64/*'
+					git sparse-checkout set --no-cone '/*' '!/libsnowflakeclient/*/win64/*' '!/libsnowflakeclient/*/darwin/*'
 					git checkout
 					export PHP_HOME=/usr
-					bash ./scripts/build_pdo_snowflake.sh
+					phpize
+					./configure --enable-pdo_snowflake
+					make
+					    echo "Linking for Linux"
+					g++ -shared \
+						-fPIC \
+						-DPIC \
+						.libs/pdo_snowflake.o \
+						.libs/snowflake_driver.o \
+						.libs/snowflake_stmt.o \
+						.libs/snowflake_paramstore.o \
+						.libs/snowflake_arraylist.o \
+						.libs/snowflake_treemap.o \
+						.libs/snowflake_rbtree.o \
+						libsnowflakeclient/lib/linux/libsnowflakeclient.a \
+						libsnowflakeclient/deps-build/linux/openssl/lib/libcrypto.a \
+						libsnowflakeclient/deps-build/linux/openssl/lib/libssl.a \
+						libsnowflakeclient/deps-build/linux/curl/lib/libcurl.a \
+						libsnowflakeclient/deps-build/linux/oob/lib/libtelemetry.a \
+						libsnowflakeclient/deps-build/linux/aws/lib64/libaws-cpp-sdk-core.a \
+						libsnowflakeclient/deps-build/linux/aws/lib64/libaws-cpp-sdk-s3.a \
+						libsnowflakeclient/deps-build/linux/azure/lib/libazure-storage-lite.a \
+						libsnowflakeclient/deps-build/linux/uuid/lib/libuuid.a \
+						libsnowflakeclient/deps-build/linux/arrow/lib/libarrow.a \
+						libsnowflakeclient/deps-build/linux/arrow_deps/lib/libjemalloc_pic.a \
+						libsnowflakeclient/deps-build/linux/boost/lib/libboost_filesystem.a \
+						libsnowflakeclient/deps-build/linux/boost/lib/libboost_regex.a \
+						libsnowflakeclient/deps-build/linux/boost/lib/libboost_system.a \
+						-O2 \
+						-Wl,--whole-archive \
+						-Wl,--no-whole-archive \
+						-Wl,-soname \
+						-Wl,pdo_snowflake.so \
+						-o .libs/pdo_snowflake.so \
+						libsnowflakeclient/deps-build/linux/openssl/lib/libssl.a \
+						libsnowflakeclient/deps-build/linux/openssl/lib/libcrypto.a \
+						libsnowflakeclient/deps-build/linux/cmocka/lib/libcmocka.a
+					(cd .libs && rm -f pdo_snowflake.la && ln -s ../pdo_snowflake.la pdo_snowflake.la)
+					./libtool --mode=install cp ./pdo_snowflake.la $(pwd)/modules	
 					cp -- "$installRemoteModule_src/modules/pdo_snowflake.so" "$PHP_EXTDIR/pdo_snowflake.so"
 					cp -- "$installRemoteModule_src/libsnowflakeclient/cacert.pem" "$PHP_EXTDIR/cacert.pem"
 				# )
